@@ -1,0 +1,188 @@
+<%- include('./partials/header') %>
+
+
+    <!-- shop wrapper -->
+    <div class="container grid lg:grid-cols-4 gap-6 pt-4 pb-16 items-start relative">
+        <!-- sidebar -->
+        <div id="category-div"
+            class="col-span-1 bg-white px-3 pt-2 pb-4 shadow rounded overflow-hidden absolute lg:static left-4 top-16 z-10 w-72 lg:w-full lg:block hidden">
+            <div class="divide-gray-200  relative">
+                <!-- category filter -->
+                <div class="relative">
+                    <div
+                        class="lg:hidden text-gray-400 hover:text-primary text-lg absolute right-0 top-0 cursor-pointer">
+                        <a><i id="close-icon" class="fas fa-times"></i></a>
+                    </div>
+                    <!-- <h1> <span class="uppercase font-bold"></span></h1> -->
+                </div>
+                <!-- category filter end -->
+
+                <% for (const keyA in Category) { %>
+                    <% if (keyA==onlyCategory || onlyCategory=='' ) { %>
+                        <div class="py-4 border-b border-gray-300">
+                            <div id="<%= keyA %>-container" class="mt-2">
+                                <% const subObj=Category[keyA]; %>
+                                    <h3 class="text-lg text-gray-800 mt-4 mb-2 capitalize font-semibold cursor-pointer flex items-center transition hover:text-ternary"
+                                        data-target="<%= keyA %>-subcategories"
+                                        onclick="toggleElement('<%= keyA %>-subcategories')">
+                                        <i class="fas fa-solid fa-bars mr-2 transition-transform"></i>
+                                        Category: <%= keyA %>
+                                    </h3>
+                                    <div id="<%= keyA %>-subcategories">
+                                        <% for (const keyB in subObj) { %>
+                                            <div class="mb-4">
+                                                <div class="cursor-pointer text-gray-700 font-medium flex items-center transition hover:text-ternary capitalize"
+                                                    data-target="<%= keyA %>-<%= keyB %>-items"
+                                                    onclick="toggleElement('<%= keyA %>-<%= keyB %>-items')">
+                                                    <i class="fas fa-solid fa-bars mr-2 transition-transform"></i>
+                                                    <%= keyB %>
+                                                </div>
+                                                <ul id="<%= keyA %>-<%= keyB %>-items" class="ml-6">
+                                                    <% const subSubObj=subObj[keyB]; %>
+                                                        <% let i=0; %> <!-- Initialize the index outside the loop -->
+                                                            <% for (const keyC of subSubObj) { %>
+                                                                <li
+                                                                    class="text-gray-600 capitalize py-1 pl-4 border-l-4 border-primary/70 transition hover:bg-ternary hover:border-bg-secondary flex items-center">
+                                                                    <form action="/products/shop" method="get"
+                                                                        class="flex items-center gap-2">
+                                                                        <!-- Single button wrapping both icon and label -->
+                                                                        <button type="submit"
+                                                                            aria-label="Submit <%= keyC %>"
+                                                                            class="flex items-center gap-2 p-2 bg-primary text-white rounded-full hover:bg-secondary transition-colors">
+                                                                            <!-- Icon -->
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                class="h-4 w-4" fill="none"
+                                                                                viewBox="0 0 24 24"
+                                                                                stroke="currentColor">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M5 13l4 4L19 7" />
+                                                                            </svg>
+
+                                                                            <!-- Label -->
+                                                                            <span
+                                                                                class="text-sm font-medium text-white">
+                                                                                <%= keyC %>
+                                                                            </span>
+                                                                        </button>
+
+                                                                        <!-- Hidden input -->
+                                                                        <input type="hidden" name="query"
+                                                                            value="<%= keyC %>" />
+                                                                    </form>
+                                                                </li>
+                                                                <% i++; %> <!-- Increment the index for each item -->
+                                                                    <% } %>
+
+                                                </ul>
+                                            </div>
+                                            <% } %>
+                                    </div>
+                            </div>
+                        </div>
+                        <% } %>
+                            <% } %>
+            </div>
+        </div>
+        <!-- sidebar end -->
+
+        <!-- products -->
+        <div class="col-span-3">
+            <!-- sorting -->
+            <!-- --------------------------------- -->
+            <button id="filter-category"
+                class="bg-primary border border-primary text-white px-10 py-3 font-medium rounded uppercase hover:bg-transparent hover:text-primary transition lg:hidden text-sm mr-3 focus:outline-none">
+                Filter
+            </button>
+            <form action="/products/shop" method="GET" class="mb-4 flex items-center justify-between">
+                <!-- Sorting Dropdown -->
+                <div>
+                    <input type="hidden" name="sortBy" value="<%= sortBy %>">
+                    <input type="hidden" name="sortOrder" value="<%= sortOrder %>">
+                    <input type="text" name="query" value="<%= searchQuery %>"
+                        class="w-44 text-sm text-gray-600 px-4 py-3 border-gray-300 shadow-sm rounded focus:ring-primary focus:border-primary"
+                        placeholder="Search for products...">
+                    <button
+                        class="px-3 py-1 text-center text-white bg-primary border border-primary rounded-b hover:bg-transparent hover:text-primary transition"
+                        type="submit">Search</button>
+                </div>
+                <select name="sort" onchange="updateSort(this.value)"
+                    class="w-44 text-sm text-gray-600 px-4 py-3 border-gray-300 shadow-sm rounded focus:ring-primary focus:border-primary">
+                    <option value="createdAt_desc" <%=sortBy==='createdAt' && sortOrder==='desc' ? 'selected' : '' %>
+                        >Newest First</option>
+                    <option value="variants.0.price_asc" <%=sortBy==='variants.0.price' && sortOrder==='asc'
+                        ? 'selected' : '' %>>Price: Low to High</option>
+                    <option value="variants.0.price_desc" <%=sortBy==='variants.0.price' && sortOrder==='desc'
+                        ? 'selected' : '' %>>Price: High to Low</option>
+                    <option value="rating_desc" <%=sortBy==='rating' && sortOrder==='desc' ? 'selected' : '' %>>Top
+                        Rated</option>
+                </select>
+            </form>
+            <!-- sorting end -->
+
+            <!-- all products -->
+            <div class="grid lg:grid-cols-2 xl:grid-cols-3 sm:grid-cols-2 gap-6" id="products-container">
+                <% products.forEach(function(product) { %>
+                    <% if(product.category==onlyCategory || onlyCategory=='' ){ %>
+                        <!-- single product -->
+                        <div class="group rounded bg-white shadow overflow-hidden">
+                            <!-- product image -->
+                            <div class="relative">
+                                <img class="w-full h-64 object-cover"
+                                    src="data:<%= product.images[0].contentType %>;base64,<%= product.images[0].imageBuffer.toString('base64') %>"
+                                    alt="Uploaded Image">
+                                <a href="/products/product/<%= product._id %>"
+                                    class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition"></a>
+                            </div>
+                            <!-- product image end -->
+                            <!-- product content -->
+                            <div class="pt-4 pb-3 px-4">
+                                <a href="/products/product/<%= product._id %>">
+                                    <h4
+                                        class="capitalize font-medium text-xl mb-2 text-gray-800 hover:text-primary transition">
+                                        <%= product.title %>
+                                    </h4>
+                                    <div class="flex items-baseline mb-1 space-x-2">
+                                        <p class="text-xl text-primary font-roboto font-semibold">₹<%=
+                                                product.variants[0].price %>
+                                        </p>
+                                        <p class="text-sm text-gray-400 font-roboto line-through">₹<%=
+                                                product.variants[0].price + 10 %>
+                                        </p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="flex gap-1 text-sm text-yellow-400">
+                                            <span><i class="fas fa-star"></i></span>
+                                            <span><i class="fas fa-star"></i></span>
+                                            <span><i class="fas fa-star"></i></span>
+                                            <span><i class="fas fa-star"></i></span>
+                                            <span><i class="fas fa-star"></i></span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <!-- product content end -->
+                            <!-- product button -->
+                            <a href="/products/addtocart/<%= product._id %>?direct=true"
+                                class="block w-full py-1 text-center text-white bg-primary border border-primary rounded-b hover:bg-transparent hover:text-primary transition">Add
+                                to Cart</a>
+                            <!-- product button end -->
+                        </div>
+                        <!-- single product end -->
+                        <% } %>
+                            <% }) %>
+            </div>
+            <!-- all products ends -->
+
+            <!-- Loading Spinner -->
+            <div id="loading">Loading more products...</div>
+
+            <!-- No More Products Message -->
+            <div id="no-more-products" class="no-more-products" style="display: none;">No more products to load.</div>
+
+        </div>
+    </div>
+    <!-- shop wrapper end -->
+
+    <%- include('./partials/footer') %>

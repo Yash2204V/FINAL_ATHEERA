@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel-Atheera</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+        crossorigin="anonymous" />
+    <link rel="stylesheet" href="/stylesheets/output.css">
+</head>
+
+<body class="font-['helvetica_now_display'] bg-gray-50">
+
+        <div class="w-full flex justify-center items-center bg-white rounded-xl shadow-md p-6">
+            <form autocomplete="off" action="/admin-haha/edit/<%= product._id %>" method="post" class="space-y-6"
+                enctype="multipart/form-data">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">Update Product</h2>
+                <!-- Product Images -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Product Images (Multiple)</label>
+                    <div
+                        class="flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-6">
+                        <div class="text-center">
+                            <input type="file" name="images" multiple class="absolute opacity-0 cursor-pointer"
+                                id="fileInput" required>
+                            <label for="fileInput" class="cursor-pointer text-gray-500 hover:text-gray-700">
+                                <i class="ri-upload-cloud-2-line text-2xl"></i>
+                                <p class="mt-1 text-sm">Click to upload images</p>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Product Title</label>
+                        <input name="title" type="text" required value="<%= product.title %>"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea name="description" rows="3" required value="<%= product.description %>"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Brand (Optional)</label>
+                            <input name="brand" type="text" value="<%= product.brand %>"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Weight (Optional)</label>
+                            <input name="weight" type="text" value="<%= product.weight %>"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select name="category" required value="<%= product.category %>"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Select Category</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="jewellery">Jewellery</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Sub Category</label>
+                            <select name="subCategory" required value="<%= product.subCategory %>"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Select Sub Category</option>
+                                <option value="suit">Suit</option>
+                                <option value="saree">Saree</option>
+                                <option value="gold">Gold</option>
+                                <option value="diamond">Diamond</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Sub Sub Category</label>
+                            <select name="subSubCategory" required value="<%= product.subSubCategory %>"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Select Sub Sub Category</option>
+                                <option value="bhotBda">Bhot Bda</option>
+                                <option value="bhotChota">Bhot Chota</option>
+                                <option value="Bdi">Bdi</option>
+                                <option value="Choti">Choti</option>
+                                <option value="necklace">Necklace</option>
+                                <option value="ring">Ring</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variants Section -->
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-800">Variants</h3>
+                        <button type="button" id="add-variant"
+                            class="flex items-center gap-2 text-blue-600 hover:text-blue-700">
+                            <i class="ri-add-circle-line"></i>
+                            Add Variant
+                        </button>
+                    </div>
+
+                    <div id="variants-container" class="space-y-4">
+                        <!-- Initial Variant -->
+                        <div class="variant-entry bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Model No</label>
+                                    <input name="variants[0][modelno]" type="text" required value="<%= product.variants[0].modelno %>"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                                        <select name="variants[0][size]" value="<%= product.variants[0].size %>"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="None">Select Size</option>
+                                            <option value="XS">XS</option>
+                                            <option value="S">S</option>
+                                            <option value="M">M</option>
+                                            <option value="L">L</option>
+                                            <option value="XL">XL</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                                        <input name="variants[0][color]" type="text" required value="<%= product.variants[0].color %>"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                                        <input name="variants[0][price]" type="number" required value="<%= product.variants[0].price %>"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                                        <input name="variants[0][quantity]" type="number" required value="<%= product.variants[0].quantity %>"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-3 px-6 rounded-lg transition-colors">
+                    Update Product
+                </button>
+            </form>
+        </div>
+
+</body>
+
+</html>
