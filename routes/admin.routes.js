@@ -14,7 +14,7 @@ const upload = multer({ storage: storage });
 router.get("/", adminAuthMiddleware, searchAdminMod);
 
 router.post("/create", upload.array('images', 5), adminAuthMiddleware, async (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     
     try {
         const product = await Product.create(req.body);
@@ -45,7 +45,7 @@ router.get("/delete/:productid", adminAuthMiddleware, async (req, res) => {
 });
 
 router.get("/edit/:productid", adminAuthMiddleware, async (req, res) => {
-    console.log(req.params.productid);
+    // console.log(req.params.productid);
 
     try {
         const product = await Product.findOne({ _id: req.params.productid });
@@ -58,7 +58,7 @@ router.get("/edit/:productid", adminAuthMiddleware, async (req, res) => {
 });
 
 router.post("/edit/:productid", adminAuthMiddleware, async (req, res) => {
-    console.log(req.params.productid);
+    // console.log(req.params.productid);
     const { title, rating, category, subCategory, subSubCategory, brand, availability, variants, description, weight } = req.body;
 
     try {

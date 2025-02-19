@@ -27,7 +27,8 @@
         <!-- Sidebar -->
         <div class="w-full lg:w-96 bg-white rounded-xl shadow-md p-6">
             <h2 class="text-2xl font-bold mb-6 text-gray-800">Create New Product</h2>
-            <form autocomplete="on" action="/admin-haha/create" method="post" class="space-y-6" enctype="multipart/form-data">
+            <form autocomplete="on" action="/admin-haha/create" method="post" class="space-y-6"
+                enctype="multipart/form-data">
                 <!-- Product Images -->
                 <div class="space-y-2">
                     <label class="block text-sm font-medium text-gray-700">Product Images (Multiple)</label>
@@ -35,10 +36,11 @@
                         class="flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-6">
                         <div class="text-center">
                             <input type="file" name="images" multiple class="absolute opacity-0 cursor-pointer"
-                                id="fileInput" required>
-                            <label for="fileInput" class="cursor-pointer text-gray-500 hover:text-gray-700">
-                                <p class="mt-1 text-sm">Click to upload images</p>
+                                id="fileInput" required accept="image/*" onchange="handleFiles(this.files)">
+                            <label for="fileInput" class="cursor-pointer text-black">
+                                <p id="status" class="mt-1 text-sm">Click to upload images</p>
                             </label>
+                            <p id="fileCount" class="mt-2 text-xs text-gray-500"></p>
                         </div>
                     </div>
                 </div>
@@ -189,8 +191,12 @@
                 </a>
             </div>
             <form action="/admin-haha" method="GET" class="mb-4 flex gap-3 items-center justify-start">
-                <input type="text" name="query" value="<%= searchQuery %>" class="w-44 text-sm text-gray-600 px-4 py-3 border-gray-300 shadow-sm rounded focus:ring-primary focus:border-primary" placeholder="Search for products...">
-                <button class="px-3 py-1 text-center text-white bg-primary border-2 border-primary rounded-b hover:bg-transparent hover:text-primary transition" type="submit">Search</button>
+                <input type="text" name="query" value="<%= searchQuery %>"
+                    class="w-44 text-sm text-gray-600 px-4 py-3 border-gray-300 shadow-sm rounded focus:ring-primary focus:border-primary"
+                    placeholder="Search for products...">
+                <button
+                    class="px-3 py-1 text-center text-white bg-primary border-2 border-primary rounded-b hover:bg-transparent hover:text-primary transition"
+                    type="submit">Search</button>
             </form>
             <!-- Product Grid -->
             <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto">
@@ -237,10 +243,32 @@
                     </div>
                     <% }) %>
             </div>
+
+
+            <!-- Loading Spinner -->
+            <% if (products.length < totalProducts) { %>
+                <a id="btn" href="?query=<%= searchQuery %>&page=<%= currentPage+1 %>"
+                    class="px-4 py-2 rounded-md bg-primary text-white">View More</a>
+                <% } %>
+
         </div>
     </div>
 
     <script>
+
+        function handleFiles(files) {
+            const p = document.getElementById("status");
+            let count = files.length;
+            if (count > 5) {
+                alert('You can only upload up to 5 images.');
+                count = 5; // Limit to 5 images
+                files = Array.from(files).slice(0, 5);
+            }
+            p.textContent = `Uploaded ${count}, left ${5 - count}`;
+
+            document.getElementById('fileCount').textContent = `Selected ${count} image(s)`;
+            // Here you could add code to show thumbnails or image previews if needed
+        }
 
         document.getElementById('add-variant').addEventListener('click', function () {
             const container = document.getElementById('variants-container');
@@ -292,8 +320,21 @@
                                             </div>
                                         </div>
                                     `;
-                    container.appendChild(newVariant);
-                });
+            container.appendChild(newVariant);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollPosition = localStorage.getItem("scrollPosition");
+            if (scrollPosition) {
+                window.scrollTo(0, parseInt(scrollPosition, 10));
+            }
+            const saveScrollPosition = () => {
+                localStorage.setItem("scrollPosition", window.scrollY);
+            };
+
+            window.addEventListener("beforeunload", saveScrollPosition);
+                return () => window.removeEventListener("beforeunload", saveScrollPosition);
+        });
     </script>
 </body>
 

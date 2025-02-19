@@ -27,7 +27,7 @@ const singleProductMail = async (req, res) => {
         // 📩 Send Enquiry Mail
         await transporter.sendMail({
             from: `ATHEERA 👗🥻 ${EMAIL}`,
-            to: user.email,
+            to: `${EMAIL}`,
             subject: "Single Product Enquiry",
             html: `
             <h1>Product Enquiry</h1>
@@ -94,7 +94,7 @@ const multipleProductMail = async (req, res) => {
         // 📩 Send Enquiry Mail
         await transporter.sendMail({
             from: `ATHEERA 👗🥻 ${EMAIL}`,
-            to: user.email,
+            to: `${EMAIL}`,
             subject: "Multiple Products Enquiry",
             html: `
             <h1>Products Enquiry</h1>

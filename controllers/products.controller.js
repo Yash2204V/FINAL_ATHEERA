@@ -4,21 +4,12 @@ const dbgr = require("debug")("development: products-controller");
 
 const shop = async (req, res) => {
     try {
-        const { category = '', query = '', page = 1, limit = 5, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
-        // console.log("Category:", category);
-        // console.log("Query:", query);
-        // console.log("Page:", page);
-        // console.log("Limit:", limit);
-        // console.log("SortBy:", sortBy);
-        // console.log("SortOrder:", sortOrder);
-        
-        // Pagination & Sorting
-        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const { query = '', sortBy = 'createdAt', sortOrder = 'desc', page = 1 } = req.query;
+        const DEFAULT_LIMIT = 27;
+        // Sorting order
         const order = sortOrder === 'desc' ? -1 : 1;
-        console.log("skip:", skip);
-        console.log("order:", order);
 
-        // Search Criteria
+        // Search criteria
         const searchCriteria = {
             $or: [
                 { title: { $regex: query, $options: 'i' } },
@@ -28,28 +19,32 @@ const shop = async (req, res) => {
             ]
         };
 
-        const totalProducts = await Product.countDocuments(searchCriteria);
-        const totalPages = Math.ceil(totalProducts / limit);
+        // Use aggregation for better query performance
+        const aggregationPipeline = [
+            { $match: searchCriteria },
+            { $sort: { [sortBy]: order } },
+            { $limit: DEFAULT_LIMIT },
+            { $count: 'total' } // This stage counts all documents before limit and skip
+        ];
 
-        // Fetch Products
-        const products = await Product.find(searchCriteria)
-            .sort({ [sortBy]: order })
-            .skip(skip)
-            .limit(parseInt(limit));
+        const totalProducts = await Product.find(searchCriteria).countDocuments();
+
+        const [ products ] = await Promise.all([
+            Product.find(searchCriteria).sort({ [sortBy]: order }).limit(DEFAULT_LIMIT * page),
+            Product.aggregate(aggregationPipeline)
+        ]);
 
         res.render("shop", {
-            onlyCategory: category,
             Category,
             products,
             currentPage: parseInt(page),
-            totalPages,
-            limit: parseInt(limit),
             searchQuery: query,
+            totalProducts,
             sortBy,
             sortOrder
         });
     } catch (error) {
-        dbgr("🛑 Shop Error:", error);
+        console.error("🛑 Shop Error:", error);
         res.status(500).json({ error: "Internal Server Error", details: error.message });
     }
 };
@@ -57,7 +52,7 @@ const shop = async (req, res) => {
 const product = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-        if (!product) return res.status(404).json({ error: "Product not found" });
+        if (!product) return res.status(404).json({ error: "System Halt" });
 
         res.render("product", { product });
     } catch (error) {
@@ -68,22 +63,24 @@ const product = async (req, res) => {
 
 const cart = async (req, res) => {
     try {
-        const user = req.user;
         // console.log("USER", user);
         // console.log("--------------------------------------------------------------------------------");
+
+        const user = req.user;
         await user.populate("cart.product");
-        // console.log("USER", user);
-    
+        user.cart = user.cart.filter(item => item.product !== null);
+        // console.log("Filtered Cart:", user.cart);
+
         let totalPrice = 0;
         for (const item of user.cart) {
-          const product = await Product.findById(item.product);
-          if (product) {
-          const price = product.variants.find(p => p.size === item.size)?.price || 1;
-          totalPrice += price * item.quantity;
-          }
+            const product = await Product.findById(item.product);
+            if (product) {
+                const price = product.variants.find(p => p.size === item.size)?.price || 1;
+                totalPrice += price * item.quantity;
+            }
         }
-        // console.log("TotalPrice", totalPrice);
-        
+        // console.log("TotalPrice", totalPrice);        
+
         res.render("cart", { user: user || "", totalPrice });
     } catch (error) {
         dbgr("🛑 Cart Error:", error);
@@ -96,6 +93,8 @@ const addCart = async (req, res) => {
         const { productid } = req.params;
         const { quantity = 1, size = "None", direct } = req.query;
         const user = req.user;
+        const product = await Product.findById( productid );
+        const { category, subCategory, subSubCategory } = product;
 
         if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -108,7 +107,7 @@ const addCart = async (req, res) => {
 
         await user.save();
 
-        return direct ? res.redirect("/products/shop") : res.redirect(`/products/product/${productid}`);
+        return direct ? res.redirect(`/products/shop?query=${subSubCategory ? subSubCategory : (subCategory ? subCategory : category)}`) : res.redirect(`/products/product/${productid}`);
     } catch (error) {
         dbgr("🛑 Add to Cart Error:", error);
         res.status(500).json({ error: "Internal Server Error", details: error.message });
@@ -122,7 +121,7 @@ const deleteCart = async (req, res) => {
 
         if (!user) return res.status(404).json({ error: "User not found" });
 
-        const cartItemIndex = user.cart.findIndex(item => item.product.toString() === productid);
+        const cartItemIndex = user.cart.reverse().findIndex(item => item.product.toString() === productid);
         if (cartItemIndex === -1) return res.status(404).json({ error: "Product not found in cart" });
 
         user.cart.splice(cartItemIndex, 1);

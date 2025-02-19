@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { MONGO_URI } = require("./environment");
 const dbgr = require("debug")("development: mongoose");
 
 /* 
@@ -13,7 +14,7 @@ Use the MONGO_URI as the environment variable for mongodb connection string.
 
 const connectionDB = async () => {
     try {
-        const conn = await mongoose.connect("mongodb+srv://atheerabusiness:HOH1rUqOcwy9ww5c@cluster0.pv1ec.mongodb.net/ATHEERA");
+        const conn = await mongoose.connect(MONGO_URI);
         dbgr(`✅ MongoDB connected: ${conn.connection.host}`);
     } catch (e) {
         dbgr(`❌ MongoDB connection error: ${e.message}`);

@@ -85,73 +85,17 @@ function enquiryBulk(){
     if (userInput) { 
         window.location.href = `/products/enquiry/multiple?query=` + encodeURIComponent(userInput); 
     }
-
 }
 
-let page = '<%= currentPage + 1 %>';
-let loading = false;
-let hasMore = true; // Assume there are more products initially
-const productsContainer = document.getElementById('products-container');
-const loadingElement = document.getElementById('loading');
-const noMoreProductsElement = document.getElementById('no-more-products');
-
-function loadMoreProducts() {
-    if (loading || !hasMore) return; // Stop if already loading or no more products
-    loading = true;
-    loadingElement.style.display = 'block';
-
-    fetch(`/products/shop?page=${page}&category=<%= onlyCategory %>&query=<%= searchQuery %>&sortBy=<%= sortBy %>&sortOrder=<%= sortOrder %>`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.products.length > 0) {
-                data.products.forEach(product => {
-                    const productHTML = `
-                        <div class="group rounded bg-white shadow overflow-hidden">
-                            <div class="relative">
-                                <img class="w-full h-64 object-cover" src="data:${product.images[0].contentType};base64,${product.images[0].imageBuffer.toString('base64')}" alt="Uploaded Image">
-                                <a href="/products/product/${product._id}" class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition"></a>
-                            </div>
-                            <div class="pt-4 pb-3 px-4">
-                                <a href="/products/product/${product._id}">
-                                    <h4 class="capitalize font-medium text-xl mb-2 text-gray-800 hover:text-primary transition">${product.title}</h4>
-                                    <div class="flex items-baseline mb-1 space-x-2">
-                                        <p class="text-xl text-primary font-roboto font-semibold">₹${product.variants[0].price}</p>
-                                        <p class="text-sm text-gray-400 font-roboto line-through">₹${product.variants[0].price + 10}</p>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <div class="flex gap-1 text-sm text-yellow-400">
-                                            <span><i class="fas fa-star"></i></span>
-                                            <span><i class="fas fa-star"></i></span>
-                                            <span><i class="fas fa-star"></i></span>
-                                            <span><i class="fas fa-star"></i></span>
-                                            <span><i class="fas fa-star"></i></span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <a href="/products/addtocart/${product._id}?direct=true" class="block w-full py-1 text-center text-white bg-primary border border-primary rounded-b hover:bg-transparent hover:text-primary transition">Add to Cart</a>
-                        </div>
-                    `;
-                    productsContainer.insertAdjacentHTML('beforeend', productHTML);
-                });
-                page++;
-                hasMore = data.hasMore; // Update hasMore based on server response
-            } else {
-                hasMore = false; // No more products to load
-            }
-
-            loading = false;
-            loadingElement.style.display = 'none';
-
-            // Show "No more products" message if there are no more products
-            if (!hasMore) {
-                noMoreProductsElement.style.display = 'block';
-            }
-        });
-}
-
-window.addEventListener('scroll', () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 && hasMore) {
-        loadMoreProducts();
+document.addEventListener('DOMContentLoaded', () => {
+    const scrollPosition = localStorage.getItem("scrollPosition");
+    if (scrollPosition) {
+        window.scrollTo(0, parseInt(scrollPosition, 10));
     }
+    const saveScrollPosition = () => {
+        localStorage.setItem("scrollPosition", window.scrollY);
+    };
+
+    window.addEventListener("beforeunload", saveScrollPosition);
+    return () => window.removeEventListener("beforeunload", saveScrollPosition);
 });
