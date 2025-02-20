@@ -34,7 +34,68 @@ const searchAdminMod = async (req, res) => {
     res.render("admin-dashboard", { products, searchQuery, totalProducts, currentPage: parseInt(page) });
 }
 
+const createProduct = async (req, res) => {
+    console.log(req.body);
+    
+    try {
+        const product = await Product.create(req.body);
+        const imageDocs = req.files.map(file => ({
+            imageBuffer: file.buffer,  // Store as buffer
+            contentType: file.mimetype, // Store MIME type
+        }));
+        await Product.findOneAndUpdate({ _id: product._id }, { images: imageDocs })
+        await product.save();
+        res.status(200).redirect("/admin-haha/");
+    } catch (e) {
+        res.status(400).json({
+            err: e.message
+        });
+    }
+}
+
+const deleteProduct = async (req, res) => {
+
+    try {
+        const product = await Product.findOneAndDelete({ _id: req.params.productid });
+        res.redirect("/admin-haha");
+    } catch (e) {
+        res.status(400).json({
+            err: e.message
+        });
+    }
+}
+
+const updatePageP = async (req, res) => {
+
+    try {
+        const product = await Product.findOne({ _id: req.params.productid });
+        res.render("update-product", { product });
+    } catch (e) {
+        res.status(400).json({
+            err: e.message
+        });
+    }
+}
+
+const editProduct = async (req, res) => {
+    // console.log(req.params.productid);
+    const { title, rating, category, subCategory, subSubCategory, brand, availability, variants, description, weight } = req.body;
+
+    try {
+        const product = await Product.findOneAndUpdate({ _id: req.params.productid }, { title, rating, category, subCategory, subSubCategory, brand, images, availability, variants, description, weight });
+        await product.save();
+        res.redirect("/admin-haha");
+    } catch (e) {
+        res.status(400).json({
+            err: e.message
+        });
+    }
+}
 
 module.exports = {
     searchAdminMod,
+    createProduct,
+    deleteProduct,
+    updatePageP,
+    editProduct
 }

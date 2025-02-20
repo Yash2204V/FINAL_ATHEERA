@@ -75,13 +75,16 @@ const cart = async (req, res) => {
         for (const item of user.cart) {
             const product = await Product.findById(item.product);
             if (product) {
-                const price = product.variants.find(p => p.size === item.size)?.price || 1;
+                const variant = product.variants.find(p => p.size === item.size);
+                const price = variant ? (variant.discount ? variant.discount : variant.price) : 1;
+                console.log("price", price);
+                
                 totalPrice += price * item.quantity;
             }
         }
         // console.log("TotalPrice", totalPrice);        
 
-        res.render("cart", { user: user || "", totalPrice });
+        res.render("cart", { user: user || "" });
     } catch (error) {
         dbgr("🛑 Cart Error:", error);
         res.status(500).json({ error: "Internal Server Error", details: error.message });
@@ -94,15 +97,16 @@ const addCart = async (req, res) => {
         const { quantity = 1, size = "None", direct } = req.query;
         const user = req.user;
         const product = await Product.findById( productid );
-        const { category, subCategory, subSubCategory } = product;
+        const { category, subCategory, subSubCategory, variants,  } = product;
 
         if (!user) return res.status(404).json({ error: "User not found" });
 
         const cartItem = user.cart.find(item => item.product.toString() === productid && item.size === size);
         if (cartItem) {
             cartItem.quantity += parseInt(quantity);
-        } else {
-            user.cart.push({ product: productid, quantity: parseInt(quantity), size });
+        }
+         else {
+            user.cart.push({ product: productid, quantity: parseInt(quantity), size: variants[0].size, variantId: variants[0]._id });
         }
 
         await user.save();
@@ -145,9 +149,12 @@ const updateCart = async (req, res) => {
         const cartItem = user.cart.find(item => item.product.toString() === productid);
         if (!cartItem) return res.status(404).json({ error: "Product not found in cart" });
 
-        if (parseInt(quantity) <= 0) {
-            return res.status(400).json({ error: "Quantity must be at least 1" });
-        }
+        const product = await Product.findById(productid);
+
+        console.log("Product",product);
+        console.log("Quantity", quantity);
+        console.log("Size", size);
+
 
         cartItem.quantity = parseInt(quantity);
         cartItem.size = size;

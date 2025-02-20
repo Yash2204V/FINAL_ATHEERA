@@ -147,17 +147,22 @@
                         
                                 <!-- Pricing Section -->
                                 <div class="flex items-baseline gap-2">
-                                    <span class="text-2xl font-bold text-gray-900">
-                                        ₹<%= product.variants[0].price.toLocaleString('en-IN') %>
-                                    </span>
-                                    <span class="text-gray-400 line-through">
-                                        ₹<%= (product.variants[0].price + 400).toLocaleString('en-IN') %>
-                                    </span>
-                                    <span class="ml-2 text-sm font-medium text-green-600">
-                                        <% const discount = Math.round((400 / product.variants[0].price) * 100); %>
-                                        <% if (discount > 0 && discount < 100) { %> Save <%= discount %>% <% } %>
-                                        
-                                    </span>
+                                    <% if (product.variants[0].discount) { %>
+                                        <span class="text-2xl font-bold text-gray-900">
+                                            ₹<%= (product.variants[0].discount).toLocaleString('en-IN') %>
+                                        </span>
+                                        <span class="text-gray-400 line-through">
+                                            ₹<%= product.variants[0].price.toLocaleString('en-IN') %>
+                                        </span>
+                                        <span class="ml-2 text-sm font-medium text-green-600">
+                                            <% const discount = Math.abs(((product.variants[0].price - product.variants[0].discount) / product.variants[0].price) * 100).toFixed(2); %>
+                                            <% if (discount > 0 && discount < 100) { %> Save <%= discount %>% <% } %>
+                                        </span>
+                                    <% } else { %>
+                                        <span class="text-2xl font-bold text-gray-900">
+                                            ₹<%= (product.variants[0].price).toLocaleString('en-IN') %>
+                                        </span>
+                                    <% } %>
                                 </div>
                             </a>
                         </div>

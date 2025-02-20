@@ -30,22 +30,52 @@ const singleProductMail = async (req, res) => {
             to: `${EMAIL}`,
             subject: "Single Product Enquiry",
             html: `
-            <h1>Product Enquiry</h1>
-            <h2>User Details</h2>
-            <table>
-                <tr><td><strong>Name:</strong></td><td>${user.name}</td></tr>
-                <tr><td><strong>Email:</strong></td><td>${user.email}</td></tr>
-                <tr><td><strong>Phone No:</strong></td><td>${req.query.query || "N/A"}</td></tr>
-            </table>
-            <h2>Product Details</h2>
-            <table>
-                <tr><td><strong>ID:</strong></td><td>${product._id}</td></tr>
-                <tr><td><strong>Model:</strong></td><td>${product.variants?.[0]?.modelno || "N/A"}</td></tr>
-                <tr><td><strong>Category:</strong></td><td>${product.category}</td></tr>
-                <tr><td><strong>Sub Category:</strong></td><td>${product.subCategory}</td></tr>
-                <tr><td><strong>Sub Sub Category:</strong></td><td>${product.subSubCategory}</td></tr>
-                <tr><td><strong>Price:</strong></td><td>₹${product.variants?.[0]?.price || "N/A"}</td></tr>
-            </table>
+                    <h1>Product Enquiry</h1>
+
+                    <h2>User Details</h2>
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Name:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${user.name}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Email:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${user.email}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Phone No:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${req.query.query || "N/A"}</td>
+                        </tr>
+                    </table>
+
+                    <h2>Product Details</h2>
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>ID:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${product._id}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Model:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${product.variants?.[0]?.modelno || "N/A"}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Category:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${product.category}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Sub Category:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${product.subCategory}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Sub Sub Category:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${product.subSubCategory}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Price:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">₹${product.variants?.[0]?.price || "N/A"}</td>
+                        </tr>
+                    </table>
+
             `,
         });
 
@@ -85,6 +115,7 @@ const multipleProductMail = async (req, res) => {
                     subCategory: product.subCategory,
                     subSubCategory: product.subSubCategory,
                     price: variant?.price || "N/A",
+                    discount: variant?.discount || "N/A"
                 };
             })
         );
@@ -97,29 +128,58 @@ const multipleProductMail = async (req, res) => {
             to: `${EMAIL}`,
             subject: "Multiple Products Enquiry",
             html: `
-            <h1>Products Enquiry</h1>
-            <h2>User Details</h2>
-            <table>
-                <tr><td><strong>Name:</strong></td><td>${user.name}</td></tr>
-                <tr><td><strong>Email:</strong></td><td>${user.email}</td></tr>
-                <tr><td><strong>Phone No:</strong></td><td>${req.query.query || "N/A"}</td></tr>
-            </table>
-            <h2>Product Details</h2>
-            <table>
-                ${validProducts.map(
-                    (p) => `
-                <tr><td><strong>ID:</strong></td><td>${p.id}</td></tr>
-                <tr><td><strong>Model:</strong></td><td>${p.model}</td></tr>
-                <tr><td><strong>Category:</strong></td><td>${p.category}</td></tr>
-                <tr><td><strong>Sub Category:</strong></td><td>${p.subCategory}</td></tr>
-                <tr><td><strong>Sub Sub Category:</strong></td><td>${p.subSubCategory}</td></tr>
-                <tr><td><strong>Price:</strong></td><td>₹${p.price}</td></tr>
-                <tr><td><strong>Quantity:</strong></td><td>${p.quantity}</td></tr>
-                <tr><td><strong>Size:</strong></td><td>${p.size}</td></tr>
-                <tr><td colspan="2"><hr></td></tr>
-                `
-                ).join("")}
-            </table>
+                    <h1>Products Enquiry</h1>
+
+                    <h2>User Details</h2>
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Name:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${user.name}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Email:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${user.email}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 8px;"><strong>Phone No:</strong></td>
+                            <td style="border: 1px solid black; padding: 8px;">${req.query.query || "N/A"}</td>
+                        </tr>
+                    </table>
+
+                    <h2>Product Details</h2>
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+                        <thead>
+                            <tr>
+                                <th style="border: 1px solid black; padding: 8px;">ID</th>
+                                <th style="border: 1px solid black; padding: 8px;">Model</th>
+                                <th style="border: 1px solid black; padding: 8px;">Category</th>
+                                <th style="border: 1px solid black; padding: 8px;">Sub Category</th>
+                                <th style="border: 1px solid black; padding: 8px;">Sub Sub Category</th>
+                                <th style="border: 1px solid black; padding: 8px;">Price</th>
+                                <th style="border: 1px solid black; padding: 8px;">Quantity</th>
+                                <th style="border: 1px solid black; padding: 8px;">Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${validProducts
+                            .map(
+                                (p) => `
+                                <tr>
+                                    <td style="border: 1px solid black; padding: 8px;">${p.id}</td>
+                                    <td style="border: 1px solid black; padding: 8px;">${p.model}</td>
+                                    <td style="border: 1px solid black; padding: 8px;">${p.category}</td>
+                                    <td style="border: 1px solid black; padding: 8px;">${p.subCategory}</td>
+                                    <td style="border: 1px solid black; padding: 8px;">${p.subSubCategory}</td>
+                                    <td style="border: 1px solid black; padding: 8px;">₹${p.price}</td>
+                                    <td style="border: 1px solid black; padding: 8px;">${p.quantity}</td>
+                                    <td style="border: 1px solid black; padding: 8px;">${p.size}</td>
+                                </tr>
+                                `
+                            )
+                            .join("")}
+                        </tbody>
+                    </table>
+
             `,
         });
 

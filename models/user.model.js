@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     tokens: [{ token: { type: String, required: true } }],
     cart: [{
         product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+        variantId: { type: mongoose.Schema.Types.ObjectId, required: true }, 
         quantity: { type: Number, default: 1, required: true },
         size: { type: String, required: true }
     }],

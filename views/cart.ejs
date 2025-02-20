@@ -4,30 +4,45 @@
     <div class="container lg:grid grid-cols-12 gap-6 items-start pb-16 pt-4">
         <!-- product cart -->
         <div class="xl:col-span-9 lg:col-span-8">
-            <p class="py-3 text-sm bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+            <p class="py-3 font-serif text-base bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
                 <strong class="font-bold">Warning:</strong>
-                <span class="block sm:inline">Similar Items can cause confusion, only recently added item will be updated.</span>
+                <span class="block sm:inline">Similar items can cause confusion. Please avoid re-adding them!</span>
             </p>
             <!-- cart title -->
-            <div class="bg-gray-200 py-3 hidden md:flex md:justify-between">
-                <p class="w-1/6 font-bold text-gray-600 text-center left">Product</p>
-                <p class="w-1/6"></p>
+            <div class="bg-gray-200 py-3 hidden md:flex md:justify-between px-5">
+                <p class="w-1/6 font-bold text-gray-600 text-left">Product</p>
                 <p class="w-1/6"></p>
                 <p class="w-1/6"></p>
                 <p class="w-1/6 font-bold text-gray-600 text-center">Quantity</p>
-                <p class="w-1/6 font-bold text-gray-600 text-center">Total</p>
+                <p class="w-1/6 font-bold text-gray-600 text-right">Total</p>
             </div>
             <!-- cart title end -->
 
             <!-- shipping carts -->
             <div class="space-y-4">
 
+                <% let totalPriceAGST = 0 %>
+                <% let totalPrice = 0 %>
+                <% let totalGST = 0 %>
                 <% if (user.cart.length===0) { %>
                     <div class="bg-white p-6 rounded-lg shadow-sm text-center">
                         <p class="text-gray-600 text-lg">Your cart is empty</p>
                     </div>
                     <% } else { %>
                         <% user.cart.reverse().forEach(function(Product) { %>
+
+                            <% 
+                                let price = Product.product.variants[0].price; 
+                                let discountedPrice = Product.product.variants[0].discount || price; // If discount exists, use it; otherwise, use the original price.
+                        
+                                // Determine GST rate based on price
+                                let gstRate = discountedPrice <= 1000 ? 5 : 12;
+                                let gstAmount = (discountedPrice * gstRate) / 100;
+                                let finalPrice = discountedPrice + gstAmount;
+                                totalPriceAGST += finalPrice
+                                totalPrice += price
+                                totalGST += gstAmount
+                            %>
 
                             <!-- single cart -->
                             <div
@@ -50,7 +65,16 @@
                                                         Product.product.subSubCategory %>
                                         </div>
                                     </div>
-                                    <p class="text-gray-700 font-medium mt-2">₹<%= Product.product.variants[0].price %>
+                                    <p class="text-gray-700 font-medium mt-2">
+                                        <% if (Product.product.variants[0].discount) { %>
+                                            <span class="mt-2 text-xl font-bold text-emerald-800">₹ <%= Product.product.variants[0].discount %></span>
+                                        <% } else { %>
+                                            <span class="mt-2 text-xl font-bold text-emerald-800">₹ <%= Product.product.variants[0].price %></span>
+                                        <% } %> 
+                                        + <span class="inline-flex items-center rounded-full text-emerald-700 bg-emerald-200 px-3 py-1 text-sm">
+                                            ₹<%= gstAmount %> GST(<%= gstRate %>%)
+                                        </span>
+                                        
                                     </p>
                                     <% if (Product.size !=="None" ) { %>
                                         <span class="inline-block mt-1 px-2 py-1 text-xs bg-gray-100 rounded-full">
@@ -102,11 +126,14 @@
                                 <!-- ------------------------------------------------------- -->
                                 <!-- cart quantity end -->
                                 <div class="ml-auto md:ml-0 flex items-center flex-col">
-                                    <p class="text-primary text-lg font-semibold">₹<%=
-                                            Product.product.variants[0].price+10 %>
-                                    </p>
+                                    <div class="w-full border-b border-gray-300 flex flex-col items-center justify-end">
+                                        <p class="text-primary text-lg font-semibold">
+                                            ₹<%= finalPrice %>
+                                        </p>
+                                    </div>
+
                                     <a href="/products/deleted/<%= Product.product._id %>">
-                                        <div class="text-red-500 hover:text-red-700 cursor-pointer">
+                                        <div class="mt-2 text-red-500 hover:text-red-700 cursor-pointer">
                                             <i class="fas fa-trash"></i>
                                         </div>
                                     </a>
@@ -124,23 +151,22 @@
             <div class="space-y-1 text-gray-600 pb-3 border-b border-gray-200">
                 <div class="flex justify-between font-medium">
                     <p>Subtotal</p>
-                    <p>PRICEEEEEEEEEEE</p>
+                    <p>₹<%= totalPrice + totalGST %></p>
                 </div>
                 <div class="flex justify-between">
-                    <p>Delivery</p>
-                    <p>Free</p>
+                    <p>Discount</p>
+                    <p class="text-green-600">-₹<%= (totalPrice - totalPriceAGST) < 0 ? 0 : totalPrice - totalPriceAGST %></p>
                 </div>
                 <div class="flex justify-between">
-                    <p>Tax</p>
-                    <p>Free</p>
+                    <p>GST</p>
+                    <p>₹<%= totalGST %></p>
                 </div>
             </div>
             <div class="flex justify-between my-3 text-gray-800 font-semibold uppercase">
                 <h4>Total</h4>
-                <h4><%= totalPrice %></h4>
+                <h4>₹<%= totalPriceAGST %></h4>
             </div>
 
-            <!-- searchbar -->
             <!-- <div class="flex mb-5">
                 <input type="text"
                     class="pl-4 w-full border border-r-0 border-primary py-2 px-3 rounded-l-md focus:ring-primary focus:border-primary text-sm"
@@ -149,8 +175,7 @@
                     class="bg-primary border border-primary text-white px-5 font-medium rounded-r-md hover:bg-transparent hover:text-primary transition text-sm font-roboto">
                     Apply
                 </button>
-            </div> -->
-            <!-- searchbar end -->
+            </div>  -->
 
             <!-- checkout -->
             <a onclick="enquiryBulk()" class="bg-primary border border-primary text-white px-8 py-2 font-medium rounded uppercase 

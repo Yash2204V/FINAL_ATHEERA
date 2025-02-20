@@ -1,87 +1,87 @@
 const express = require("express");
 const router = express.Router();
+
+// 🛡️ Middleware imports
 const adminAuthMiddleware = require("../middlewares/admin-auth-middleware");
 const authMiddleware = require("../middlewares/auth-middleware");
 
-const { searchAdminMod } = require("../controllers/admin.controller");
-const User = require("../models/user.model");
-const Product = require("../models/product.model");
+// 🎯 Controller imports
+const {
+    searchAdminMod,
+    createProduct,
+    deleteProduct,
+    updatePageP,
+    editProduct
+} = require("../controllers/admin.controller");
 
+// 👤 Model imports
+const User = require("../models/user.model");
+
+// 📸 Multer for file uploads
 const multer = require("multer");
+const { PASSCODE } = require("../config/environment");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+/*  
+=========================
+ 🎩 Admin Routes 
+=========================
+*/
+
+// 🔍 Get admin panel data
 router.get("/", adminAuthMiddleware, searchAdminMod);
 
-router.post("/create", upload.array('images', 5), adminAuthMiddleware, async (req, res) => {
-    // console.log(req.body);
-    
-    try {
-        const product = await Product.create(req.body);
-        const imageDocs = req.files.map(file => ({
-            imageBuffer: file.buffer,  // Store as buffer
-            contentType: file.mimetype, // Store MIME type
-        }));
-        await Product.findOneAndUpdate({ _id: product._id }, { images: imageDocs })
-        await product.save();
-        res.status(200).redirect("/admin-haha/");
-    } catch (e) {
-        res.status(400).json({
-            err: e.message
-        });
-    }
-});
+// ➕ Create a new product (allows up to 5 images)
+router.post("/create", upload.array('images', 5), adminAuthMiddleware, createProduct);
 
-router.get("/delete/:productid", adminAuthMiddleware, async (req, res) => {
+// ❌ Delete a product by ID
+router.get("/delete/:productid", adminAuthMiddleware, deleteProduct);
 
-    try {
-        const product = await Product.findOneAndDelete({ _id: req.params.productid });
-        res.redirect("/admin-haha");
-    } catch (e) {
-        res.status(400).json({
-            err: e.message
-        });
-    }
-});
+// ✏️ Get edit page for a product
+router.get("/edit/:productid", adminAuthMiddleware, updatePageP);
 
-router.get("/edit/:productid", adminAuthMiddleware, async (req, res) => {
-    // console.log(req.params.productid);
+// 🛠️ Edit a product's details
+router.post("/edit/:productid", adminAuthMiddleware, editProduct);
 
-    try {
-        const product = await Product.findOne({ _id: req.params.productid });
-        res.render("update-product", { product });
-    } catch (e) {
-        res.status(400).json({
-            err: e.message
-        });
-    }
-});
+/*  
+=========================
+ 👥 User Routes 
+=========================
+*/
 
-router.post("/edit/:productid", adminAuthMiddleware, async (req, res) => {
-    // console.log(req.params.productid);
-    const { title, rating, category, subCategory, subSubCategory, brand, availability, variants, description, weight } = req.body;
-
-    try {
-        const product = await Product.findOneAndUpdate({ _id: req.params.productid }, { title, rating, category, subCategory, subSubCategory, brand, images, availability, variants, description, weight });
-        await product.save();
-        res.redirect("/admin-haha");
-    } catch (e) {
-        res.status(400).json({
-            err: e.message
-        });
-    }
-});
-
-
+// 🔑 Make a user an admin with a valid passcode
 router.get("/makeAdmin", authMiddleware, async (req, res) => {
-    const user = await User.findOneAndUpdate({ _id: req.user._id }, { role: "admin" });
-    res.status(200).json({
-        message: "Ban Gya londeeeeeeeee",
-        user
-    })
-    res.status(400).json({
-        message: "Nope",
-    })
-})
+    try {
+        const passcode = req.query.passcode;
 
+        if (passcode === PASSCODE) {
+            const user = await User.findOneAndUpdate(
+                { _id: req.user._id },
+                { role: "admin" },
+                { new: true } // Return updated document
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: "🎉 You are now an admin!",
+                user
+            });
+        }
+
+        return res.status(400).json({
+            success: false,
+            message: "❌ Invalid passcode!"
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "⚠️ Internal Server Error",
+            error: error.message
+        });
+    }
+});
+
+// 🚀 Export router
 module.exports = router;
