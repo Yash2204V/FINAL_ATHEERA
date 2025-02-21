@@ -29,13 +29,13 @@ const searchAdminMod = async (req, res) => {
     ]);
 
     const totalProducts = await Product.find(searchCriteria).countDocuments();
-    console.log(totalProducts);
+    // console.log(totalProducts);
 
     res.render("admin-dashboard", { products, searchQuery, totalProducts, currentPage: parseInt(page) });
 }
 
 const createProduct = async (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     
     try {
         const product = await Product.create(req.body);

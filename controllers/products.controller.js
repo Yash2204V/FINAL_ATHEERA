@@ -77,7 +77,7 @@ const cart = async (req, res) => {
             if (product) {
                 const variant = product.variants.find(p => p.size === item.size);
                 const price = variant ? (variant.discount ? variant.discount : variant.price) : 1;
-                console.log("price", price);
+                // console.log("price", price);
                 
                 totalPrice += price * item.quantity;
             }
@@ -151,9 +151,9 @@ const updateCart = async (req, res) => {
 
         const product = await Product.findById(productid);
 
-        console.log("Product",product);
-        console.log("Quantity", quantity);
-        console.log("Size", size);
+        // console.log("Product",product);
+        // console.log("Quantity", quantity);
+        // console.log("Size", size);
 
 
         cartItem.quantity = parseInt(quantity);

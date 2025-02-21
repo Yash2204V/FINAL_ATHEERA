@@ -25,16 +25,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());  
 
 // 7️⃣ Session Configuration  
-app.use(session({  
-	secret: EXPRESS_SESSION_SECRET,  
-	resave: false,  
-	saveUninitialized: false,  
-	cookie: {  
-		httpOnly: true,  
-		secure: NODE_ENV === 'production', // Secure in production only  
-		maxAge: 24 * 60 * 60 * 1000 // 24 hours  
-	}  
-}));  
+app.use(session({
+	secret: EXPRESS_SESSION_SECRET,
+	resave: false,
+	saveUninitialized: false,
+	store: MongoStore.create({
+		mongoUrl: MONGODB_URI, // Replace with your MongoDB connection string
+		ttl: 24 * 60 * 60, // Session expiration time in seconds (24 hours)
+	}),
+	cookie: {
+		httpOnly: true,
+		secure: NODE_ENV === 'production', // Secure in production
+		maxAge: 24 * 60 * 60 * 1000 // 24 hours
+	}
+}));
 
 // 8️⃣ Static Files & View Engine  
 app.use(express.static(path.join(__dirname, "public")));  
