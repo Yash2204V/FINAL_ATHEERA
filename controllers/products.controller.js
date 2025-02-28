@@ -150,6 +150,7 @@ const updateCart = async (req, res) => {
         if (!cartItem) return res.status(404).json({ error: "Product not found in cart" });
 
         const product = await Product.findById(productid);
+        console.log(product.variants[0].quantity)
 
         // console.log("Product",product);
         // console.log("Quantity", quantity);

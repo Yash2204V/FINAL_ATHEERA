@@ -6,11 +6,12 @@ const express = require("express");
 const path = require("path");  
 const cookieParser = require("cookie-parser");  
 const session = require("express-session");  
-const dbgr = require("debug")("development: port");  
+const dbgr = require("debug")("development: port");
+const MongoStore = require("connect-mongo");
 
 // 3️⃣ Import Configuration & Environment Variables  
 const connectionDB = require("./config/db");  
-const { NODE_ENV, EXPRESS_SESSION_SECRET, BASE_URL } = require("./config/environment");  
+const { NODE_ENV, EXPRESS_SESSION_SECRET, BASE_URL,MONGO_URI } = require("./config/environment");  
 
 // 4️⃣ Connect to Database  
 connectionDB();  
@@ -30,7 +31,7 @@ app.use(session({
 	resave: false,
 	saveUninitialized: false,
 	store: MongoStore.create({
-		mongoUrl: MONGODB_URI, // Replace with your MongoDB connection string
+		mongoUrl: MONGO_URI, // Replace with your MongoDB connection string
 		ttl: 24 * 60 * 60, // Session expiration time in seconds (24 hours)
 	}),
 	cookie: {

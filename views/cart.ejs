@@ -14,34 +14,28 @@
                 <p class="w-1/6"></p>
                 <p class="w-1/6"></p>
                 <p class="w-1/6 font-bold text-gray-600 text-center">Quantity</p>
-                <p class="w-1/6 font-bold text-gray-600 text-right">Total</p>
+                <p class="w-1/6 font-bold text-gray-600 text-right">Price</p>
             </div>
             <!-- cart title end -->
 
             <!-- shipping carts -->
             <div class="space-y-4">
 
-                <% let totalPriceAGST = 0 %>
-                <% let totalPrice = 0 %>
-                <% let totalGST = 0 %>
                 <% if (user.cart.length===0) { %>
                     <div class="bg-white p-6 rounded-lg shadow-sm text-center">
                         <p class="text-gray-600 text-lg">Your cart is empty</p>
                     </div>
                     <% } else { %>
                         <% user.cart.reverse().forEach(function(Product) { %>
-
                             <% 
                                 let price = Product.product.variants[0].price; 
                                 let discountedPrice = Product.product.variants[0].discount || price; // If discount exists, use it; otherwise, use the original price.
                         
                                 // Determine GST rate based on price
-                                let gstRate = discountedPrice <= 1000 ? 5 : 12;
-                                let gstAmount = (discountedPrice * gstRate) / 100;
+                                <!-- let gstRate = discountedPrice <= 1000 ? 5 : 12; -->
+                                <!-- let gstAmount = (discountedPrice * gstRate) / 100; -->
+                                let gstAmount = 0;
                                 let finalPrice = discountedPrice + gstAmount;
-                                totalPriceAGST += finalPrice
-                                totalPrice += price
-                                totalGST += gstAmount
                             %>
 
                             <!-- single cart -->
@@ -61,8 +55,8 @@
                                     </h2>
                                     <div class="text-gray-800 mb-2 xl:text-lg text-base font-normal capitalize">
                                         <div class="text-sm font-semibold text-gray-500 mt-1">
-                                            <%= Product.product.category %> › <%= Product.product.subCategory %> › <%=
-                                                        Product.product.subSubCategory %>
+                                            <%= Product.product.category %> › <%= Product.product.subCategory %> › 
+                                            <%= Product.product.subSubCategory %>
                                         </div>
                                     </div>
                                     <p class="text-gray-700 font-medium mt-2">
@@ -71,9 +65,9 @@
                                         <% } else { %>
                                             <span class="mt-2 text-xl font-bold text-emerald-800">₹ <%= Product.product.variants[0].price %></span>
                                         <% } %> 
-                                        + <span class="inline-flex items-center rounded-full text-emerald-700 bg-emerald-200 px-3 py-1 text-sm">
-                                            ₹<%= gstAmount %> GST(<%= gstRate %>%)
-                                        </span>
+                                        <!-- + <span class="inline-flex items-center rounded-full text-emerald-700 bg-emerald-200 px-3 py-1 text-sm">
+                                             ₹ 0
+                                        </span> -->
                                         
                                     </p>
                                     <% if (Product.size !=="None" ) { %>
@@ -151,20 +145,20 @@
             <div class="space-y-1 text-gray-600 pb-3 border-b border-gray-200">
                 <div class="flex justify-between font-medium">
                     <p>Subtotal</p>
-                    <p>₹<%= totalPrice + totalGST %></p>
+                    <p>₹</p>
                 </div>
                 <div class="flex justify-between">
                     <p>Discount</p>
-                    <p class="text-green-600">-₹<%= (totalPrice - totalPriceAGST) < 0 ? 0 : totalPrice - totalPriceAGST %></p>
+                    <p class="text-green-600">-₹</p>
                 </div>
                 <div class="flex justify-between">
                     <p>GST</p>
-                    <p>₹<%= totalGST %></p>
+                    <p>₹</p>
                 </div>
             </div>
             <div class="flex justify-between my-3 text-gray-800 font-semibold uppercase">
                 <h4>Total</h4>
-                <h4>₹<%= totalPriceAGST %></h4>
+                <h4>₹</h4>
             </div>
 
             <!-- <div class="flex mb-5">
