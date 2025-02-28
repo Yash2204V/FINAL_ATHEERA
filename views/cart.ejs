@@ -1,3 +1,8 @@
+<!-- Include success/error messages -->
+<div class="relative">
+    <%- include('./partials/suceess-error') %>
+</div>
+
 <%- include('./partials/header') %>
 
     <!-- cart wrapper -->
@@ -24,6 +29,9 @@
                 <% if (user.cart.length===0) { %>
                     <div class="bg-white p-6 rounded-lg shadow-sm text-center">
                         <p class="text-gray-600 text-lg">Your cart is empty</p>
+                        <a href="/products/shop" class="inline-block mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-secondary transition-colors">
+                            Continue Shopping
+                        </a>
                     </div>
                     <% } else { %>
                         <% user.cart.reverse().forEach(function(Product) { %>
@@ -31,10 +39,9 @@
                                 let price = Product.product.variants[0].price; 
                                 let discountedPrice = Product.product.variants[0].discount || price; // If discount exists, use it; otherwise, use the original price.
                         
-                                // Determine GST rate based on price
-                                <!-- let gstRate = discountedPrice <= 1000 ? 5 : 12; -->
-                                <!-- let gstAmount = (discountedPrice * gstRate) / 100; -->
-                                let gstAmount = 0;
+                                // Calculate GST based on price
+                                let gstRate = 18;
+                                let gstAmount = (discountedPrice * gstRate) / 100;
                                 let finalPrice = discountedPrice + gstAmount;
                             %>
 
@@ -45,7 +52,7 @@
                                 <div class="w-32 flex-shrink-0">
                                     <img class="w-full"
                                         src="data:<%= Product.product.images[0].contentType %>;base64,<%= Product.product.images[0].imageBuffer.toString('base64') %>"
-                                        alt="Cart Image">
+                                        alt="<%= Product.product.title %>">
                                 </div>
                                 <!-- cart image end -->
                                 <!-- cart content -->
@@ -62,13 +69,13 @@
                                     <p class="text-gray-700 font-medium mt-2">
                                         <% if (Product.product.variants[0].discount) { %>
                                             <span class="mt-2 text-xl font-bold text-emerald-800">₹ <%= Product.product.variants[0].discount %></span>
+                                            <span class="text-sm text-gray-500 line-through ml-2">₹ <%= Product.product.variants[0].price %></span>
                                         <% } else { %>
                                             <span class="mt-2 text-xl font-bold text-emerald-800">₹ <%= Product.product.variants[0].price %></span>
                                         <% } %> 
-                                        <!-- + <span class="inline-flex items-center rounded-full text-emerald-700 bg-emerald-200 px-3 py-1 text-sm">
-                                             ₹ 0
-                                        </span> -->
-                                        
+                                        <span class="inline-flex items-center rounded-full text-emerald-700 bg-emerald-200 px-3 py-1 text-sm">
+                                            GST: ₹ <%= gstAmount.toFixed(2) %>
+                                        </span>
                                     </p>
                                     <% if (Product.size !=="None" ) { %>
                                         <span class="inline-block mt-1 px-2 py-1 text-xs bg-gray-100 rounded-full">
@@ -122,7 +129,7 @@
                                 <div class="ml-auto md:ml-0 flex items-center flex-col">
                                     <div class="w-full border-b border-gray-300 flex flex-col items-center justify-end">
                                         <p class="text-primary text-lg font-semibold">
-                                            ₹<%= finalPrice %>
+                                            ₹<%= finalPrice.toFixed(2) %>
                                         </p>
                                     </div>
 
@@ -145,31 +152,21 @@
             <div class="space-y-1 text-gray-600 pb-3 border-b border-gray-200">
                 <div class="flex justify-between font-medium">
                     <p>Subtotal</p>
-                    <p>₹</p>
+                    <p>₹<%= cartSummary ? cartSummary.subtotal.toFixed(2) : '0.00' %></p>
                 </div>
                 <div class="flex justify-between">
                     <p>Discount</p>
-                    <p class="text-green-600">-₹</p>
+                    <p class="text-green-600">-₹<%= cartSummary ? cartSummary.discount.toFixed(2) : '0.00' %></p>
                 </div>
                 <div class="flex justify-between">
-                    <p>GST</p>
-                    <p>₹</p>
+                    <p>GST (<%= cartSummary ? cartSummary.gstRate : '18' %>%)</p>
+                    <p>₹<%= cartSummary ? cartSummary.gstAmount.toFixed(2) : '0.00' %></p>
                 </div>
             </div>
             <div class="flex justify-between my-3 text-gray-800 font-semibold uppercase">
                 <h4>Total</h4>
-                <h4>₹</h4>
+                <h4>₹<%= cartSummary ? cartSummary.total.toFixed(2) : '0.00' %></h4>
             </div>
-
-            <!-- <div class="flex mb-5">
-                <input type="text"
-                    class="pl-4 w-full border border-r-0 border-primary py-2 px-3 rounded-l-md focus:ring-primary focus:border-primary text-sm"
-                    placeholder="Coupon">
-                <button type="submit"
-                    class="bg-primary border border-primary text-white px-5 font-medium rounded-r-md hover:bg-transparent hover:text-primary transition text-sm font-roboto">
-                    Apply
-                </button>
-            </div>  -->
 
             <!-- checkout -->
             <a onclick="enquiryBulk()" class="bg-primary border border-primary text-white px-8 py-2 font-medium rounded uppercase 

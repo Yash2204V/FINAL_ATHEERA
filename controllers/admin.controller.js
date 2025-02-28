@@ -5,7 +5,6 @@ const searchAdminMod = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const DEFAULT_LIMIT = 25;
 
-
     // Build search criteria
     const searchCriteria = {
         $or: [
@@ -35,18 +34,22 @@ const searchAdminMod = async (req, res) => {
 }
 
 const createProduct = async (req, res) => {
-    // console.log(req.body);
     
     try {
-        const product = await Product.create(req.body);
         const imageDocs = req.files.map(file => ({
             imageBuffer: file.buffer,  // Store as buffer
             contentType: file.mimetype, // Store MIME type
         }));
-        await Product.findOneAndUpdate({ _id: product._id }, { images: imageDocs })
-        await product.save();
+    
+        const productData = {
+            ...req.body,
+            images: imageDocs
+        };
+
+        const product = await Product.create(productData);
         res.status(200).redirect("/admin-haha/");
     } catch (e) {
+        console.log("ERROR", e);
         res.status(400).json({
             err: e.message
         });

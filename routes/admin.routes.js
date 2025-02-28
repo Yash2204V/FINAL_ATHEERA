@@ -35,6 +35,8 @@ router.get("/", adminAuthMiddleware, searchAdminMod);
 // ➕ Create a new product (allows up to 5 images)
 router.post("/create", upload.array('images', 5), adminAuthMiddleware, createProduct);
 
+
+
 // ❌ Delete a product by ID
 router.get("/delete/:productid", adminAuthMiddleware, deleteProduct);
 
