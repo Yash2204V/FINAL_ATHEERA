@@ -1,7 +1,7 @@
 /**
  * User Model
  * Defines the schema and methods for user data
- */
+*/
 
 const mongoose = require("mongoose");
 const generateToken = require("../utils/generateToken");
@@ -148,8 +148,6 @@ userSchema.virtual('cartTotal').get(function() {
 /**
  * Index for efficient queries
  */
-userSchema.index({ email: 1 });
-userSchema.index({ googleId: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ 'cart.product': 1 });
 

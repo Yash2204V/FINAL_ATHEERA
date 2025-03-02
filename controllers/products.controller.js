@@ -67,11 +67,14 @@ const shop = async (req, res) => {
 
         // Count total products matching criteria
         const totalProducts = await Product.find(searchCriteria).countDocuments();
+        // console.log("Total Products", totalProducts);
+        
 
         // Fetch products with sorting and pagination
         const products = await Product.find(searchCriteria)
             .sort({ [sortBy]: order })
             .limit(DEFAULT_LIMIT * pageNum);
+        // console.log("Products", products.length);
 
         // Render shop page with data
         res.render("shop", {

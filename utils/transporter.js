@@ -9,6 +9,8 @@ const { EMAIL, APP_PASSWORD, NODE_ENV } = require("../config/environment");
 // Create reusable transporter with configuration
 const transporter = nodemailer.createTransport({
   service: "gmail",
+  port: 587,
+  secure: false,
   auth: {
     user: EMAIL,
     pass: APP_PASSWORD,
