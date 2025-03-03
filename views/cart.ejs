@@ -36,8 +36,10 @@
                     <% } else { %>
                         <% user.cart.reverse().forEach(function(Product) { %>
                             <% 
-                                let price = Product.product.variants[0].price; 
-                                let discountedPrice = Product.product.variants[0].discount || price; // If discount exists, use it; otherwise, use the original price.
+                                // Find the variant that matches the selected size
+                                let variant = Product.product.variants.find(v => v.size === Product.size) || Product.product.variants[0];
+                                let price = variant.price; 
+                                let discountedPrice = variant.discount || price; // If discount exists, use it; otherwise, use the original price.
                         
                                 // Calculate GST based on price
                                 let gstRate = 18;
@@ -67,11 +69,11 @@
                                         </div>
                                     </div>
                                     <p class="text-gray-700 font-medium mt-2">
-                                        <% if (Product.product.variants[0].discount) { %>
-                                            <span class="mt-2 text-xl font-bold text-emerald-800">₹ <%= Product.product.variants[0].discount %></span>
-                                            <span class="text-sm text-gray-500 line-through ml-2">₹ <%= Product.product.variants[0].price %></span>
+                                        <% if (variant.discount) { %>
+                                            <span class="mt-2 text-xl font-bold text-emerald-800">₹ <%= variant.discount %></span>
+                                            <span class="text-sm text-gray-500 line-through ml-2">₹ <%= variant.price %></span>
                                         <% } else { %>
-                                            <span class="mt-2 text-xl font-bold text-emerald-800">₹ <%= Product.product.variants[0].price %></span>
+                                            <span class="mt-2 text-xl font-bold text-emerald-800">₹ <%= variant.price %></span>
                                         <% } %> 
                                         <span class="inline-flex items-center rounded-full text-emerald-700 bg-emerald-200 px-3 py-1 text-sm">
                                             GST: ₹ <%= gstAmount.toFixed(2) %>
@@ -95,15 +97,14 @@
                                         <div class="relative">
                                             <select name="size"
                                                 class="block w-full py-1 px-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary">
-                                                <option value="None" <%=Product.size==='None' ? 'selected' : '' %>>Size
-                                                </option>
-                                                <option value="XS" <%=Product.size==='XS' ? 'selected' : '' %>>XS
-                                                </option>
-                                                <option value="S" <%=Product.size==='S' ? 'selected' : '' %>>S</option>
-                                                <option value="M" <%=Product.size==='M' ? 'selected' : '' %>>M</option>
-                                                <option value="L" <%=Product.size==='L' ? 'selected' : '' %>>L</option>
-                                                <option value="XL" <%=Product.size==='XL' ? 'selected' : '' %>>XL
-                                                </option>
+                                                <option value="None" <%=Product.size==='None' ? 'selected' : '' %>>Size</option>
+                                                <% Product.product.variants.forEach(function(variant) { %>
+                                                    <option value="<%= variant.size %>" 
+                                                            <%= Product.size === variant.size ? 'selected' : '' %>
+                                                            <%= variant.quantity < 1 ? 'disabled' : '' %>>
+                                                        <%= variant.size %><%= variant.quantity < 1 ? ' (Out of stock)' : '' %>
+                                                    </option>
+                                                <% }); %>
                                             </select>
                                         </div>
                                         <% } %>
@@ -114,7 +115,7 @@
 
                                             <input type="number" name="quantity" value="<%= Product.quantity %>"
                                                 class="quantity-input w-12 text-center border-x border-gray-300 bg-white text-sm py-1"
-                                                min="1" max="10" readonly>
+                                                min="1" max="<%= variant.quantity %>" readonly>
 
                                             <button type="button" onclick="updateQuantity(this, 1)"
                                                 class="quantity-btn px-3 py-1 text-gray-600 hover:bg-gray-50 rounded-r-md">+</button>
