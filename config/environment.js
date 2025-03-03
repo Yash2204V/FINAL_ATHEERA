@@ -28,7 +28,7 @@ const config = {
   DEBUG: process.env.DEBUG,
   
   // Server
-  BASE_URL: `http://localhost:${process.env.PORT || defaults.port}`,
+  BASE_URL: process.env.BASE_URL || `http://localhost:${process.env.PORT || defaults.port}`,
   PORT: parseInt(process.env.PORT || defaults.port, 10),
   
   // OAuth

@@ -286,20 +286,12 @@ const addCart = async (req, res) => {
                 res.redirect(`/products/product/${productid}`);
         }
         
-        // Find selected variant by size
-        const selectedVariant = variants.find(v => v.size === size);
-        
-        // Validate that the selected size exists in the product variants
-        if (!selectedVariant) {
-            req.session.cartError = `Size ${size} is not available for this product`;
-            return direct ? 
-                res.redirect(`/products/shop?query=${subSubCategory || subCategory || category}`) : 
-                res.redirect(`/products/product/${productid}`);
-        }
+        // Find selected variant
+        const selectedVariant = variants.find(v => v.size === size) || variants[0];
         
         // Check if variant has stock
         if (selectedVariant.quantity < parseInt(quantity)) {
-            req.session.cartError = `Only ${selectedVariant.quantity} items available in size ${size}`;
+            req.session.cartError = `Only ${selectedVariant.quantity} items available`;
             return direct ? 
                 res.redirect(`/products/shop?query=${subSubCategory || subCategory || category}`) : 
                 res.redirect(`/products/product/${productid}`);
@@ -317,7 +309,7 @@ const addCart = async (req, res) => {
             
             // Check if new quantity exceeds stock
             if (newQuantity > selectedVariant.quantity) {
-                req.session.cartError = `Cannot add more than ${selectedVariant.quantity} items of size ${size}`;
+                req.session.cartError = `Cannot add more than ${selectedVariant.quantity} items`;
                 return direct ? 
                     res.redirect(`/products/shop?query=${subSubCategory || subCategory || category}`) : 
                     res.redirect(`/products/product/${productid}`);
@@ -432,54 +424,19 @@ const updateCart = async (req, res) => {
             return res.redirect("/products/cart");
         }
         
-        // Find selected variant by size
-        const selectedVariant = product.variants.find(v => v.size === size);
-        
-        // Validate that the selected size exists in the product variants
-        if (!selectedVariant) {
-            req.session.cartError = `Size ${size} is not available for this product`;
-            return res.redirect("/products/cart");
-        }
+        // Find selected variant
+        const selectedVariant = product.variants.find(v => v.size === size) || product.variants[0];
         
         // Check if variant has stock
         if (selectedVariant.quantity < parseInt(quantity)) {
-            req.session.cartError = `Only ${selectedVariant.quantity} items available in size ${size}`;
+            req.session.cartError = `Only ${selectedVariant.quantity} items available`;
             return res.redirect("/products/cart");
         }
 
-        // Check if another cart item already exists with the same product and new size
-        if (size !== cartItem.size) {
-            const existingItem = user.cart.find(item => 
-                item.product.toString() === productid && 
-                item.size === size && 
-                item !== cartItem
-            );
-            
-            if (existingItem) {
-                // If item with new size already exists, merge quantities
-                const newQuantity = existingItem.quantity + parseInt(quantity);
-                
-                // Check if merged quantity exceeds stock
-                if (newQuantity > selectedVariant.quantity) {
-                    req.session.cartError = `Cannot have more than ${selectedVariant.quantity} items of size ${size}`;
-                    return res.redirect("/products/cart");
-                }
-                
-                // Update existing item quantity
-                existingItem.quantity = newQuantity;
-                
-                // Remove the original item
-                user.cart = user.cart.filter(item => item !== cartItem);
-            } else {
-                // Update cart item
-                cartItem.quantity = parseInt(quantity);
-                cartItem.size = size;
-                cartItem.variantId = selectedVariant._id;
-            }
-        } else {
-            // Just update quantity for same size
-            cartItem.quantity = parseInt(quantity);
-        }
+        // Update cart item
+        cartItem.quantity = parseInt(quantity);
+        cartItem.size = size;
+        cartItem.variantId = selectedVariant._id;
 
         // Save user cart
         await user.save();
