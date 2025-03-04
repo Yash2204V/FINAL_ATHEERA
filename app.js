@@ -34,25 +34,35 @@ const app = express();
 
 // Security Headers Middleware
 if (NODE_ENV === 'production') {
-  // Set security headers in production
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
-        imgSrc: ["'self'", "data:", "https://img.icons8.com"],
-        fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
-      }
-    },
-    // Allow iframes for same origin
-    frameguard: { action: 'sameorigin' }
-  }));
+    app.use(helmet({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+
+                // ✅ Allow external scripts (No inline scripts)
+                scriptSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"], 
+
+                // ✅ Allow Tailwind & external styles (inline styles needed for Tailwind)
+                styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+
+                // ✅ Allow images from self, data URIs, and external icon sources
+                imgSrc: ["'self'", "data:", "https://img.icons8.com"],
+
+                // ✅ Allow fonts from Google Fonts and CDNs
+                fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
+
+                // ✅ Other security settings
+                objectSrc: ["'none'"], // Prevents loading objects like Flash, etc.
+                upgradeInsecureRequests: [],
+            }
+        },
+        frameguard: { action: 'sameorigin' }
+    }));
 } else {
-  // Simplified security headers for development
-  app.use(helmet({
-    contentSecurityPolicy: false
-  }));
+    // In development, disable CSP for easy debugging
+    app.use(helmet({
+        contentSecurityPolicy: false
+    }));
 }
 
 // Compression Middleware

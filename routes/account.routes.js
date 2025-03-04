@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const adminAuthMiddleware = require("../middlewares/admin-auth-middleware");
+const authMiddleware = require("../middlewares/auth-middleware");
 
-router.get("/", adminAuthMiddleware, (req,res)=>{
-    res.render("account");
+router.get("/", authMiddleware, (req,res)=>{
+    res.render("account", {name: req.user.name});
 })
 
 router.get("/customer-care", (req,res)=>{

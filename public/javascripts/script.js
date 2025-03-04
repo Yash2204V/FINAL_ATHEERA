@@ -26,26 +26,19 @@ closeCategory.addEventListener('click', function () {
 })
 
 // let the user when click to filter: the relative div appear, and when the user either click to filter or closeIcon: the relative div will disappear.
-let divOpen = false;
-filter.addEventListener('click', function () {
-    if (divOpen) {
+if(filter){
+    let divOpen = false;
+    filter.addEventListener('click', function () {
+        if (divOpen) {
+            categoryDiv.classList.add("hidden");
+        } else {
+            categoryDiv.classList.remove("hidden");
+        }
+        divOpen = !divOpen;
+    })
+    closeIcon.addEventListener('click', function () {
         categoryDiv.classList.add("hidden");
-    } else {
-        categoryDiv.classList.remove("hidden");
-    }
-    divOpen = !divOpen;
-})
-
-closeIcon.addEventListener('click', function () {
-    categoryDiv.classList.add("hidden");
-})
-
-function updateSort(value) {
-    const [sortBy, sortOrder] = value.split('_');
-    const url = new URL(window.location.href);
-    url.searchParams.set('sortBy', sortBy);
-    url.searchParams.set('sortOrder', sortOrder);
-    window.location = url.toString();
+    })
 }
 
 function toggleElement(id) {
@@ -58,34 +51,7 @@ function toggleElement(id) {
     }
 }
 
-
-// Cart
-function updateQuantity(btn, change) {
-    const form = btn.closest('form');
-    const input = form.querySelector('.quantity-input');
-    let newVal = parseInt(input.value) + change;
-
-    // Enforce min/max values
-    newVal = Math.max(1, Math.min(10, newVal));
-    input.value = newVal;
-}
-
 // Enquiry
-
-function enquiry(id){
-    var userInput = prompt('Please enter your number & proceed:'); 
-    if (userInput) { 
-        window.location.href = `/products/enquiry/single/${id}?query=` + encodeURIComponent(userInput); 
-    }
-
-}
-
-function enquiryBulk(){
-    var userInput = prompt('Please enter your number & proceed:'); 
-    if (userInput) { 
-        window.location.href = `/products/enquiry/multiple?query=` + encodeURIComponent(userInput); 
-    }
-}
 
 document.addEventListener('DOMContentLoaded', () => {
     const scrollPosition = localStorage.getItem("scrollPosition");

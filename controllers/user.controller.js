@@ -15,6 +15,7 @@ const {
   NODE_ENV 
 } = require("../config/environment");
 const User = require("../models/user.model");
+const verifyToken = require("../utils/verifyToken");
 
 // Initialize OAuth2 Client
 const oAuth2Client = new OAuth2Client(
@@ -123,10 +124,11 @@ const authGoogleCallback = async (req, res) => {
  * @param {Request} req - Express request object
  * @param {Response} res - Express response object
  */
-const loginPage = (req, res) => {
+const loginPage = async (req, res) => {
   // If user is already logged in, redirect to account
   if (req.cookies.token) {
-    return res.render("account");
+    const user = await User.findById(verifyToken(req.cookies.token));
+    return res.render("account", { name: user.name });
   }
   
   // Get error messages from session

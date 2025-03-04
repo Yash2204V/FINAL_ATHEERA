@@ -105,17 +105,18 @@
                         class="px-3 py-1 text-center text-white bg-primary border border-primary rounded-b hover:bg-transparent hover:text-primary transition"
                         type="submit">Search</button>
                 </div>
-                <select name="sort" onchange="updateSort(this.value)"
-                    class="w-44 text-sm text-gray-600 px-4 py-3 border-gray-300 shadow-sm rounded focus:ring-primary focus:border-primary">
-                    <option value="createdAt_desc" <%=sortBy==='createdAt' && sortOrder==='desc' ? 'selected' : '' %>
-                        >Newest First</option>
-                    <option value="variants.0.price_asc" <%=sortBy==='variants.0.price' && sortOrder==='asc'
-                        ? 'selected' : '' %>>Price: Low to High</option>
-                    <option value="variants.0.price_desc" <%=sortBy==='variants.0.price' && sortOrder==='desc'
-                        ? 'selected' : '' %>>Price: High to Low</option>
-                    <option value="rating_desc" <%=sortBy==='rating' && sortOrder==='desc' ? 'selected' : '' %>>Top
-                        Rated</option>
+                <select id="sort-type" name="sort"
+                class="w-44 text-sm text-gray-600 px-4 py-3 border-gray-300 shadow-sm rounded focus:ring-primary focus:border-primary">
+                <option value="createdAt_desc" <%=sortBy==='createdAt' && sortOrder==='desc' ? 'selected' : '' %>
+                    >Newest First</option>
+                <option value="variants.0.price_asc" <%=sortBy==='variants.0.price' && sortOrder==='asc'
+                    ? 'selected' : '' %>>Price: Low to High</option>
+                <option value="variants.0.price_desc" <%=sortBy==='variants.0.price' && sortOrder==='desc'
+                    ? 'selected' : '' %>>Price: High to Low</option>
+                <!-- <option value="rating_desc" <%=sortBy==='rating' && sortOrder==='desc' ? 'selected' : '' %>>Top
+                    Rated</option> -->
                 </select>
+                
             </form>
             <!-- sorting end -->
 
@@ -185,5 +186,8 @@
         </div>
     </div>
     <!-- shop wrapper end -->
+
+
+    <script src="/javascripts/external-script.js"></script>
 
     <%- include('./partials/footer') %>
